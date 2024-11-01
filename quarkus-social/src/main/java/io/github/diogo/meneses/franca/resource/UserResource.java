@@ -15,8 +15,12 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 public class UserResource {
 
+	private final UserService userService;
+
 	@Inject
-	UserService userService;
+	public UserResource(UserService userService) {
+		this.userService = userService;
+	}
 
 	@POST
 	public Response createUser(CreateUserRequest userRequest) {

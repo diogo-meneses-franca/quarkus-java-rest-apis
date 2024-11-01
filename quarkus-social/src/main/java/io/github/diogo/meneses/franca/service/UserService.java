@@ -2,7 +2,9 @@ package io.github.diogo.meneses.franca.service;
 
 import io.github.diogo.meneses.franca.dto.CreateUserRequest;
 import io.github.diogo.meneses.franca.model.User;
+import io.github.diogo.meneses.franca.repository.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 
@@ -11,24 +13,31 @@ import java.util.List;
 @ApplicationScoped
 public class UserService {
 
+	private final UserRepository repository;
+
+	@Inject
+	public UserService(UserRepository repository) {
+		this.repository = repository;
+	}
+
 	@Transactional
 	public User createUser(CreateUserRequest request){
 		User user = new User(request.getName(), request.getAge());
-		User.persist(user);
+		repository.persist(user);
 		return user;
 	}
 
 	public List<User> listAllUsers(){
-		return User.findAll().list();
+		return repository.findAll().list();
 	}
 
 	@Transactional
 	public Response.Status deleteUser(Long userId) {
-		User user = User.findById(userId);
+		User user = repository.findById(userId);
 		if (user == null){
 			return Response.Status.NOT_FOUND;
 		}else {
-			User.deleteById(userId);
+			repository.deleteById(userId);
 		}
 		return Response.Status.NO_CONTENT;
 	}
@@ -36,7 +45,7 @@ public class UserService {
 	@Transactional
 	public Response.Status updateUser(Long userId, CreateUserRequest userData) {
 
-		User user = User.findById(userId);
+		User user = repository.findById(userId);
 		if (user != null){
 			user.setName(userData.getName());
 			user.setAge(userData.getAge());

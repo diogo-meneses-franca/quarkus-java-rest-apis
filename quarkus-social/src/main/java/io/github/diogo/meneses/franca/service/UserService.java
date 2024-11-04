@@ -22,7 +22,7 @@ public class UserService {
 
 	@Transactional
 	public User createUser(CreateUserRequest request){
-		User user = new User(request.getName(), request.getAge());
+		User user = new User(null, request.getName(), request.getAge());
 		repository.persist(user);
 		return user;
 	}
@@ -36,21 +36,25 @@ public class UserService {
 		User user = repository.findById(userId);
 		if (user == null){
 			return Response.Status.NOT_FOUND;
-		}else {
-			repository.deleteById(userId);
 		}
+		repository.deleteById(userId);
 		return Response.Status.NO_CONTENT;
 	}
 
 	@Transactional
-	public Response.Status updateUser(Long userId, CreateUserRequest userData) {
+	public User updateUser(Long userId, CreateUserRequest userData) {
 
 		User user = repository.findById(userId);
 		if (user != null){
 			user.setName(userData.getName());
 			user.setAge(userData.getAge());
-			return Response.Status.OK;
+			return user;
 		}
-			return Response.Status.NOT_FOUND;
+			return null;
+	}
+
+
+	public User findUser(Long userId) {
+		return repository.findById(userId);
 	}
 }

@@ -6,7 +6,6 @@ import io.github.diogo.meneses.franca.model.User;
 import io.github.diogo.meneses.franca.service.UserService;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Valid;
 import jakarta.validation.Validator;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -36,7 +35,9 @@ public class UserResource {
 			return validation;
 		}
 		User user = userService.createUser(userRequest);
-		return Response.ok(user).build();
+		return Response.status(Response.Status.CREATED)
+				.entity(user)
+				.build();
 	}
 
 	@GET
@@ -55,8 +56,9 @@ public class UserResource {
 	@PUT
 	@Path("/{id}")
 	public Response updateUser(@PathParam("id")Long userId, CreateUserRequest user){
-		Response.Status status = userService.updateUser(userId, user);
-		return Response.status(status).build();
+		User updatedUser = userService.updateUser(userId, user);
+		if (updatedUser != null) return Response.ok(updatedUser).build();
+		return Response.status(Response.Status.NOT_FOUND).build();
 	}
 
 	private Response validate(CreateUserRequest request){
@@ -67,6 +69,5 @@ public class UserResource {
 		}
 		return null;
 	}
-
 
 }

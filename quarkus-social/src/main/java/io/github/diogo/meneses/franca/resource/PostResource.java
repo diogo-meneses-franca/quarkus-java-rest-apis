@@ -24,7 +24,7 @@ public class PostResource {
 	@GET
 	@Path("/{userId}")
 	public Response listPosts(@PathParam("userId") Long userId){
-		return Response.status(Response.Status.OK).build();
+		return service.listPosts(userId);
 	}
 
 

@@ -8,35 +8,27 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "posts")
-public class Post implements Serializable {
+@Table(name = "followers")
+public class Follower implements Serializable {
 
 	@Serial
 	private static final long serialVersionUID = 1L;
 
-	@Id
+	@Id()
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-	@Column(name = "post_text")
-	private String text;
-
-	@Column(name = "dateTime")
-	private LocalDateTime dateTime;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@PrePersist
-	private void prePersist() {
-		setDateTime(LocalDateTime.now());
-	}
+	@ManyToOne
+	@JoinColumn(name = "follower_id")
+	private User follower;
 }

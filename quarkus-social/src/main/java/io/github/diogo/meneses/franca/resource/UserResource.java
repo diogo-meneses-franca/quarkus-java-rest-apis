@@ -1,18 +1,16 @@
 package io.github.diogo.meneses.franca.resource;
 
 import io.github.diogo.meneses.franca.dto.CreateUserRequest;
-import io.github.diogo.meneses.franca.dto.ResponseError;
 import io.github.diogo.meneses.franca.model.User;
 import io.github.diogo.meneses.franca.service.UserService;
+import io.github.diogo.meneses.franca.utils.ValidatorUtil;
 import jakarta.inject.Inject;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
-import java.util.Set;
 
 @Path(("/users"))
 @Consumes(MediaType.APPLICATION_JSON)
@@ -20,17 +18,17 @@ import java.util.Set;
 public class UserResource {
 
 	private final UserService userService;
-	private final Validator validator;
+	private final ValidatorUtil validator;
 
 	@Inject
-	public UserResource(UserService userService, Validator validator) {
+	public UserResource(UserService userService, ValidatorUtil validator) {
 		this.userService = userService;
 		this.validator = validator;
 	}
 
 	@POST
 	public Response createUser(CreateUserRequest userRequest) {
-		Response validation = validate(userRequest);
+		Response validation = validator.validate(userRequest);
 		if (validation != null){
 			return validation;
 		}
@@ -59,15 +57,6 @@ public class UserResource {
 		User updatedUser = userService.updateUser(userId, user);
 		if (updatedUser != null) return Response.ok(updatedUser).build();
 		return Response.status(Response.Status.NOT_FOUND).build();
-	}
-
-	private Response validate(CreateUserRequest request){
-		Set<ConstraintViolation<CreateUserRequest>> violations = validator.validate(request);
-		if(!violations.isEmpty()){
-			ResponseError responseError = ResponseError.createFromValidation(violations);
-			return Response.status(400).entity(responseError).build();
-		}
-		return null;
 	}
 
 }

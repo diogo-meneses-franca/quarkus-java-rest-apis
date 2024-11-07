@@ -13,8 +13,6 @@ import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class FollowerService {

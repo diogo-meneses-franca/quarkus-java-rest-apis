@@ -10,12 +10,16 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
 
 @ApplicationScoped
 public class FollowerService {
+
+	Logger logger = LoggerFactory.getLogger(FollowerService.class);
 
 	private final FollowerRepository repository;
 	private final UserService userService;
@@ -59,4 +63,20 @@ public class FollowerService {
 		return Response.status(Response.Status.OK).entity(response).build();
 	}
 
+	@Transactional
+	public Response unfollow(Long userId, FollowerRequest request) {
+		 User user = userService.findUser(userId);
+		 User follower = userService.findUser(request.getFollowerId());
+		 if(user == null || follower == null){
+			 	return Response.status(Response.Status.NOT_FOUND).build();
+		 }
+		 try {
+			 repository.deleteByUserAndFollower(user, follower);
+		 }catch (RuntimeException e){
+			 logger.error("FollowerService: unfollow(), error: {}", e.getMessage(), e);
+			 return Response.status(Response.Status.BAD_REQUEST).build();
+		 }
+		 return Response.status(Response.Status.NO_CONTENT).build();
+
+	}
 }

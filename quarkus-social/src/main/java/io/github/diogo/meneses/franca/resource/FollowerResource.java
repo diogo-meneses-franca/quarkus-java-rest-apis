@@ -39,8 +39,8 @@ public class FollowerResource {
 
 	@DELETE
 	@Path("/{userId}")
-	public Response unfollow(@PathParam("userId")Long userId, FollowerRequest request){
-		return service.unfollow(userId, request);
+	public Response unfollow(@PathParam("userId") Long userId, @QueryParam("followerId") Long followerId){
+		return service.unfollow(userId, followerId);
 	}
 
 }

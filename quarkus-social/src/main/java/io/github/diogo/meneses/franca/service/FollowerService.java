@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @ApplicationScoped
 public class FollowerService {
@@ -64,19 +65,28 @@ public class FollowerService {
 	}
 
 	@Transactional
-	public Response unfollow(Long userId, FollowerRequest request) {
-		 User user = userService.findUser(userId);
-		 User follower = userService.findUser(request.getFollowerId());
-		 if(user == null || follower == null){
-			 	return Response.status(Response.Status.NOT_FOUND).build();
-		 }
-		 try {
-			 repository.deleteByUserAndFollower(user, follower);
-		 }catch (RuntimeException e){
-			 logger.error("FollowerService: unfollow(), error: {}", e.getMessage(), e);
-			 return Response.status(Response.Status.BAD_REQUEST).build();
-		 }
-		 return Response.status(Response.Status.NO_CONTENT).build();
-
+	public Response unfollow(Long userId, Long followerId) {
+		User user = userService.findUser(userId);
+		User follower = userService.findUser(followerId);
+		if(user == null || follower == null){
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
+		try {
+			List<Follower> followerList = repository.findByUser(userId);
+			Optional<Follower> filteredFollower = followerList
+					.stream()
+					.filter(flw -> flw.getFollower()
+							.getId()
+							.equals(followerId))
+					.findFirst();
+			if(!filteredFollower.isPresent()){
+				return Response.status(Response.Status.NOT_FOUND).build();
+			}
+			repository.deleteById(filteredFollower.get().getId());
+		}catch (RuntimeException e){
+			logger.error("FollowerService: unfollow(), error: {}", e.getMessage(), e);
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		}
+		return Response.status(Response.Status.NO_CONTENT).build();
 	}
 }

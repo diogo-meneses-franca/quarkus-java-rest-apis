@@ -17,12 +17,14 @@ public class PostService {
 
 	private final PostRepository repository;
 	private final UserService userService;
+	private final FollowerService followerService;
 
 	@Inject
-	public PostService(PostRepository repository, UserService userService) {
+	public PostService(PostRepository repository, UserService userService, FollowerService followerService) {
 		this.repository = repository;
 		this.userService = userService;
-	}
+        this.followerService = followerService;
+    }
 
 	@Transactional
 	public Response savePost(Long userId, CreatePostRequest request){
@@ -40,14 +42,21 @@ public class PostService {
 				.build();
 	}
 
-	public Response listPosts(Long userId){
+	public Response listPosts(Long userId, Long followerId){
 		User user = userService.findUser(userId);
-		if(user == null) return Response.status(Response.Status.NOT_FOUND).build();
-		List<Post> postList = repository.findPostsByUserSortedByDateTimeDesc(user);
-		List<PostResponse> responseList = PostResponse.fromPostList(postList);
+		User follower  = userService.findUser(followerId);
+		if(user == null || follower == null) return Response.status(Response.Status.NOT_FOUND).build();
+		if (followerService.isFollower(userId, followerId)) {
+			List<Post> postList = repository.findPostsByUserSortedByDateTimeDesc(user);
+			List<PostResponse> responseList = PostResponse.fromPostList(postList);
+			return Response
+					.status(Response.Status.OK)
+					.entity(responseList)
+					.build();
+		}
 		return Response
-				.status(Response.Status.OK)
-				.entity(responseList)
+				.status(Response.Status.FORBIDDEN)
+				.entity("You must be a follower to see this user's posts")
 				.build();
 	}
 }

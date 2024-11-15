@@ -89,4 +89,10 @@ public class FollowerService {
 		}
 		return Response.status(Response.Status.NO_CONTENT).build();
 	}
+
+	public boolean isFollower(Long userId, Long followerId){
+		return repository.findByUser(userId)
+				.stream()
+				.anyMatch(follower -> follower.getFollower().getId().equals(followerId));
+	}
 }

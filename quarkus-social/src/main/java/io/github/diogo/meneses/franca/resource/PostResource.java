@@ -23,8 +23,10 @@ public class PostResource {
 
 	@GET
 	@Path("/{userId}")
-	public Response listPosts(@PathParam("userId") Long userId){
-		return service.listPosts(userId);
+	public Response listPosts(
+			@PathParam("userId") Long userId,
+			@HeaderParam("followerId") Long followerId){
+		return service.listPosts(userId, followerId);
 	}
 
 
